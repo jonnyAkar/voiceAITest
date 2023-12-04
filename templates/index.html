@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Conversation</title>
+</head>
+<body>
+    <h1>ChatGPT Conversation</h1>
+    <form method="post" action="{{ url_for('index') }}">
+        <label for="user_input">User Input:</label>
+        <input type="text" name="user_input" id="user_input" required>
+        <button type="submit">Get Response</button>
+    </form>
+
+    {% for message in conversation_history %}
+        <p>{{ message["role"] }}: {{ message["content"] }}</p>
+    {% endfor %}
+    <audio controls autoplay>
+        <source src="{{ filename }}" type="audio/mp3">
+
+    </audio>
+    
+</body>
+</html>
+
+<script>
+    if (window.performance) {
+        if (performance.navigation.type === 1) {
+            console.log("HERE")
+            fetch('/handle_refresh');
+        }
+    }
+</script>
