@@ -6,9 +6,9 @@ import os
 app = Flask(__name__)
 
 OPENAI_API_KEY = os.getenv('OPENAI_KEY')
+print(OPENAI_API_KEY)
 CHUNK_SIZE = 1024
 
-print(os)
 
 # Store conversation history in a global variable
 conversation_history = []
