@@ -85,6 +85,9 @@ def play_voice(text, timestamp):
 
     response = requests.post(url, json=data, headers=headers)
 
+    print(f"Response status code: {response.status_code}")
+    print(f"Response content: {response.content}")
+
     filename = f'static/output_{timestamp}.mp3'
 
     with open(filename, 'wb') as f:
