@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-OPENAI_API_KEY = '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'
+OPENAI_API_KEY = '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'
 CHUNK_SIZE = 1024
 
 
