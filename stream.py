@@ -4,7 +4,7 @@ import json
 import base64
 
 # Your WebSocket server URL
-WS_URL = "ws://localhost:8080/"
+WS_URL = "wss://listeningapi.onrender.com/"
 
 FRAMES_PER_BUFFER = 3200
 FORMAT = pyaudio.paInt16
@@ -34,7 +34,7 @@ def on_open(ws):
         
         # Send the data over the WebSocket
         parsed_data = json.loads(json_data)
-        
+
         ws.send(json_data)
 
 
