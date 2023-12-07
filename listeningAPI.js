@@ -5,9 +5,11 @@ const app = express();
 const server = require("http").createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const API_KEY = process.env.ASSEMBLY_API;
+
 let assembly = new WebSocket(
   "wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000",
-  { headers: { authorization: "4b4791c0896e4f1ea23e5fc97ada6056" } }
+  { headers: { authorization: API_KEY } }
 );
 
 let count = 0;
