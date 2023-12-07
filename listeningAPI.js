@@ -5,23 +5,43 @@ const app = express();
 const server = require("http").createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const API_KEY = process.env.ASSEMBLY_API;
+const API_KEY1 = process.env.ASSEMBLY_API;
+const API_KEY = '4b4791c0896e4f1ea23e5fc97ada6056';
+
+
+let count = 0;
 
 let assembly = new WebSocket(
   "wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000",
   { headers: { authorization: API_KEY } }
 );
 
-let count = 0;
-
 // Handle Web Socket Connection
 wss.on("connection", function connection(ws) {
+  
   console.log("New Connection Initiated");
-  assembly.onerror = console.error;
+
+  //open assembly websocket
+  const assembly = new WebSocket(
+    "wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000",
+    { headers: { authorization: API_KEY } }
+  );
+
   const texts = {};
+  
+  //handle assembly close
+  assembly.onclose = (closeEvent) => {
+    console.log("assembly closing");
+  }
+
+  // Handle assembly open
+  assembly.onopen = (event) => {
+    console.log("opening new assembly socket");
+  }
 
   //handle assembly messages
   assembly.onmessage = (assemblyMsg) => {
+    
     const res = JSON.parse(assemblyMsg.data);
     texts[res.audio_start] = res.text;
     const keys = Object.keys(texts);
@@ -45,7 +65,7 @@ wss.on("connection", function connection(ws) {
     });
     
   }
-
+  
   // Handle incoming binary data (audio chunks)
   ws.on("message", function incoming(data, isBinary) {
     // Log the message in real-time
@@ -54,7 +74,11 @@ wss.on("connection", function connection(ws) {
     count += 1;
     const parsed_json = JSON.parse(message);
     //console.log(count, " : ",parsed_json['audio_data'].substr(0,5));
-    assembly.send(message);
+    if (assembly.readyState == WebSocket.OPEN){
+      assembly.send(message);
+    }else{
+      console.log(assembly.readyState);
+    }
     
   });
 
@@ -63,7 +87,7 @@ wss.on("connection", function connection(ws) {
     // Log the message in real-time
     console.log("session ended");
     assembly.send(JSON.stringify({ terminate_session: true }));
-    
+    assembly.close()
   });
 
   // Handle WebSocket errors
@@ -71,8 +95,6 @@ wss.on("connection", function connection(ws) {
     console.error("WebSocket encountered an error:", error.message);
 
   });
-
-  
 
 });
 
