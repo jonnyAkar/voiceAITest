@@ -1,55 +1,40 @@
-from flask import Flask, request, render_template, session, redirect, url_for, jsonify
+from flask import Flask, request, render_template, jsonify
 import requests
 import time
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a random and secure secret key
 
 OPENAI_API_KEY = os.getenv('OPENAI_KEY')
+print("KEY" + OPENAI_API_KEY)
 CHUNK_SIZE = 1024
 
-def init_session():
-    # Initialize session variables if not already present
-    if 'conversation_history' not in session:
-        session['conversation_history'] = []
-    if 'timestamp' not in session:
-        session['timestamp'] = 0
 
-@app.before_request
-def before_request():
-    init_session()
-
-@app.after_request
-def after_request(response):
-    # Save the session data after each request
-    session.modified = True
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
-    return response
+# Store conversation history in a global variable
+conversation_history = []
+timestamp = 0
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-
-
     if request.method == 'POST':
         user_input = request.form['user_input']
-        print(session['conversation_history'])
-        # Get the latest timestamp from the session
+
+        global timestamp
+        # Get the latest timestamp from the conversation_history
         timestamp = int(time.time())
 
-        # Add user input to the conversation history in the session
-        session['conversation_history'].append({"role": "user", "content": user_input})
+        # Add user input to the conversation history
+        conversation_history.append({"role": "user", "content": user_input})
 
         # Get response from ChatGPT
-        response_content = send_to_chatgpt(session['conversation_history'], timestamp)
+        response_content = send_to_chatgpt(conversation_history, timestamp)
 
-        # Add ChatGPT's response to the conversation history in the session
-        session['conversation_history'].append({"role": "assistant", "content": response_content})
-    
-    return render_template('index.html', conversation_history=session['conversation_history'], 
-    filename=f'static/output_{session["timestamp"]}.mp3')
+        # Add ChatGPT's response to the conversation history
+        conversation_history.append({"role": "assistant", "content": response_content})
+
+        
+    return render_template('index.html', conversation_history=conversation_history, 
+    filename=f'static/output_{timestamp}.mp3')
 
 def send_to_chatgpt(conversation, timestamp):
     url = "https://api.openai.com/v1/chat/completions"
@@ -100,6 +85,9 @@ def play_voice(text, timestamp):
 
     response = requests.post(url, json=data, headers=headers)
 
+    print(f"Response status code: {response.status_code}")
+    print(f"Response content: {response.content}")
+
     filename = f'static/output_{timestamp}.mp3'
 
     with open(filename, 'wb') as f:
@@ -110,7 +98,8 @@ def play_voice(text, timestamp):
 @app.route('/handle_refresh')
 def handle_refresh():
     # Handle the refresh on the server side
-    session['conversation_history'] = []
+    global conversation_history
+    conversation_history = []
 
     folder_path = 'static/' 
 

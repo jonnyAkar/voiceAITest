@@ -6,7 +6,7 @@
     <title>ChatGPT Conversation</title>
 </head>
 <body>
-    <h1>ChatGPT Conversation</h1>
+    <h1>eMed AI Demo</h1>
     <form method="post" action="{{ url_for('index') }}">
         <label for="user_input">User Input:</label>
         <input type="text" name="user_input" id="user_input" required>
@@ -17,7 +17,7 @@
         <p>{{ message["role"] }}: {{ message["content"] }}</p>
     {% endfor %}
     <audio controls autoplay>
-        <source src="{{ filename }}" type="audio/mp3">
+        <source src="{{ filename }}" type="audio/mp3" >
 
     </audio>
     
