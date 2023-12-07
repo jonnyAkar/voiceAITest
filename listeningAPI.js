@@ -50,7 +50,7 @@ wss.on("connection", function connection(ws) {
     //console.log(message);
     count += 1;
     const parsed_json = JSON.parse(message);
-    console.log(count, " : ",parsed_json['audio_data'].substr(0,5));
+    //console.log(count, " : ",parsed_json['audio_data'].substr(0,5));
     assembly.send(message);
     
   });
