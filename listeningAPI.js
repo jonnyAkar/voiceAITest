@@ -17,7 +17,10 @@ let count = 0;
 // Handle Web Socket Connection
 wss.on("connection", function connection(ws) {
   console.log("New Connection Initiated");
+  assembly.onerror = console.error;
   const texts = {};
+
+  //handle assembly messages
   assembly.onmessage = (assemblyMsg) => {
     const res = JSON.parse(assemblyMsg.data);
     texts[res.audio_start] = res.text;
@@ -54,6 +57,22 @@ wss.on("connection", function connection(ws) {
     assembly.send(message);
     
   });
+
+  // Handle end of session
+  ws.on("close", function incoming(code, reason) {
+    // Log the message in real-time
+    console.log("session ended");
+    assembly.send(JSON.stringify({ terminate_session: true }));
+    
+  });
+
+  // Handle WebSocket errors
+  ws.on("error", function (error) {
+    console.error("WebSocket encountered an error:", error.message);
+
+  });
+
+  
 
 });
 
